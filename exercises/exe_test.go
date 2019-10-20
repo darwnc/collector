@@ -49,3 +49,8 @@ func returnValueB(a int, result *[]string) {
 	fmt.Printf("---addr %p\n", result)
 	returnValueB(a-1, result)
 }
+
+func TestRemoveDigits(t *testing.T) {
+	result := removeKdigits("1432219", 3)
+	fmt.Println(result)
+}

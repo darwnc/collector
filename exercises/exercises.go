@@ -1,7 +1,9 @@
 package exercises
 
 import (
+	"fmt"
 	"strconv"
+	"strings"
 )
 
 var timeTable = [...]int{1, 2, 4, 8, 1, 2, 4, 8, 16, 32}
@@ -103,4 +105,57 @@ func factorial(num int64) (result int64) {
 		result = result * int64(i)
 	}
 	return
+}
+
+// 给定一个以字符串表示的非负整数 num，移除这个数中的 k 位数字，使得剩下的数字最小。
+func removeKdigits(num string, k int) (result string) {
+	if len(num) < k {
+		return result
+	}
+	if len(num) == k {
+		result = "0"
+		return
+	}
+	//选取前k+1位 移除最大的k个数字，剩下的即位最大的首字母位0去掉
+	// remove := num[0:k]
+	acqureOne(num[0:k+1], &result)
+	// fmt.Println("removeKdigits1", result)
+	result = result + num[k+1:]
+	// fmt.Println("removeKdigits2", result)
+	//去掉头部的0
+	// result = strings.TrimPrefix(result, "0")
+	result = strings.TrimLeftFunc(result, func(r rune) bool {
+		if r == rune('0') {
+			return true
+		}
+		return false
+	})
+	return
+}
+func acqureOne(num string, result *string) {
+	if result == nil {
+		result = new(string)
+	}
+	if len(num) == 1 { //最后一位，算完成
+		*result = num
+		fmt.Printf("%#v\n", *result)
+		return
+	}
+	bigest := 0
+	for _, v := range num {
+		// item := strconv.QuoteRune(v)
+		if value, _ := strconv.Atoi(string(v)); value >= bigest {
+			bigest = value
+		}
+	}
+	// Replace(s, old, new string, n int) string
+	num = strings.Map(func(r rune) rune {
+		if value, _ := strconv.Atoi(string(r)); value == bigest {
+			return -1
+		}
+		return r
+	}, num)
+	// fmt.Println("string=", num)
+	// *result = num
+	acqureOne(num, result)
 }
