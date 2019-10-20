@@ -9,24 +9,25 @@ import (
 
 func TestBinaryWatch(t *testing.T) {
 	//1<<N
-	fmt.Println("pow", math.Pow(2, 4))
+	fmt.Println("pow math", math.Pow(2, 4))
+	fmt.Println("pow1<<N", 1<<4)
 	fmt.Println("combination=", combination(1, 6))
-	testSlice := make([]string, 0)
-	fmt.Println("len=", len(testSlice), "-cap=", cap(testSlice))
-	num := [...]string{"a", "b", "c"}
-	result := make([][]string, 0)
+	// result := make([][]string, 0)
 	// fmt.Printf("return addr %#[1]v\n", len(&result[0]))
-	combinationDetail(num, 0, 3, &result)
-	fmt.Println(result)
+	// combinationDetail(num, 0, 3, &result)
+	// fmt.Println(result)
+	resultTime := binaryWatch(2)
 
-	// result0 := a(10)
+	fmt.Println("acqure=", resultTime)
+
+	// result0 := returnValueA(10)
 	// fmt.Printf("return addr%p %#[1]v\n", result0)
 
 	// result1 := make([]string, 0)
-	// b(10, &result1)
+	// returnValueB(10, &result1)
 	// fmt.Printf("result1 addr %p %#[1]v\n", &result1)
 }
-func a(b int) (all []string) {
+func returnValueA(b int) (all []string) {
 	if b == 1 {
 		all = append(all, strconv.Itoa(1))
 		return
@@ -36,16 +37,15 @@ func a(b int) (all []string) {
 	}
 	all = append(all, strconv.Itoa(b))
 	fmt.Printf("addr %p\n", &all)
-	return append(all, a(b-1)...)
+	return append(all, returnValueA(b-1)...)
 }
 
-func b(a int, result *[]string) {
-
+func returnValueB(a int, result *[]string) {
 	if a == 1 {
 		*result = append(*result, strconv.Itoa(1))
 		return
 	}
 	*result = append(*result, strconv.Itoa(a))
 	fmt.Printf("---addr %p\n", result)
-	b(a-1, result)
+	returnValueB(a-1, result)
 }
