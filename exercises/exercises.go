@@ -9,7 +9,7 @@ import (
 var timeTable = [...]int{1, 2, 4, 8, 1, 2, 4, 8, 16, 32}
 var indexTable = [...]int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}
 
-//统计几何个数
+//统计个数
 var count = 0
 
 //练习
@@ -116,21 +116,62 @@ func removeKdigits(num string, k int) (result string) {
 		result = "0"
 		return
 	}
+	// //剩余数字位数
+	// resultLen = len(num) - k
+
 	//选取前k+1位 移除最大的k个数字，剩下的即位最大的首字母位0去掉
 	// remove := num[0:k]
-	acqureOne(num[0:k+1], &result)
-	// fmt.Println("removeKdigits1", result)
-	result = result + num[k+1:]
-	// fmt.Println("removeKdigits2", result)
-	//去掉头部的0
-	// result = strings.TrimPrefix(result, "0")
-	result = strings.TrimLeftFunc(result, func(r rune) bool {
-		if r == rune('0') {
-			return true
+	index := []int{}
+	for key := range num {
+		index = append(index, key)
+	}
+	reslutMap := make(map[int][]int)
+	for i := 1; i <= len(index); i++ {
+		result := make([]int, 0)
+		acquire(index, i, &result, reslutMap)
+	}
+	allSatisfy := []string{}
+	for _, v := range reslutMap {
+		if len(v) == len(num)-k { //符合条件
+			//移除相应的位数
+			tempResult := ""
+			for _, v := range v {
+				tempResult = tempResult + string(num[v])
+			}
+			allSatisfy = append(allSatisfy, tempResult)
 		}
-		return false
-	})
-	return
+	}
+
+	resultNumber, _ := strconv.Atoi(num)
+
+	for _, v := range allSatisfy {
+		//移除头部的0
+		resultTirm := strings.TrimLeftFunc(v, func(r rune) bool {
+			if r == rune('0') {
+				return true
+			}
+			return false
+		})
+		resultTirmNum, _ := strconv.Atoi(resultTirm)
+		//获取最小值
+		if resultTirmNum < resultNumber {
+			resultNumber = resultTirmNum
+		}
+	}
+
+	// acqureOne(num[0:k+1], &result)
+	// // fmt.Println("removeKdigits1", result)
+	// result = result + num[k+1:]
+	// // fmt.Println("removeKdigits2", result)
+	// //去掉头部的0
+	// // result = strings.TrimPrefix(result, "0")
+	// result = strings.TrimLeftFunc(result, func(r rune) bool {
+	// 	if r == rune('0') {
+	// 		return true
+	// 	}
+	// 	return false
+	// })
+	return strconv.Itoa(resultNumber)
 }
 func acqureOne(num string, result *string) {
 	if result == nil {
@@ -149,8 +190,10 @@ func acqureOne(num string, result *string) {
 		}
 	}
 	// Replace(s, old, new string, n int) string
+	isDel := false
 	num = strings.Map(func(r rune) rune {
-		if value, _ := strconv.Atoi(string(r)); value == bigest {
+		if value, _ := strconv.Atoi(string(r)); value == bigest && !isDel { //只删一次
+			isDel = true
 			return -1
 		}
 		return r
