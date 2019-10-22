@@ -4,23 +4,40 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"sync"
 )
 
-var timeTable = [...]int{1, 2, 4, 8, 1, 2, 4, 8, 16, 32}
-var indexTable = [...]int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}
+//BinaryWatch 结构体
+type BinaryWatch struct {
+	timeTable  [10]int
+	indexTable [10]int
+	count      *int
+}
 
-//统计个数
-var count = 0
+var watchOnce sync.Once
+var watch *BinaryWatch
 
-//练习
+//NewBinaryWatch 练习
 //https://leetcode-cn.com/problems/binary-watch/
 //找出indexTable给定指数的组合，去timeTable内的值即可得到，然后判断是否合适规则
 //合并成一个从里面任意取第二部分的组合[1,2,4,8,1,2,4,8,16,32] [0,0,0,0,0,0,0,0,0,0]
-func binaryWatch(num int) (resultTime []string) {
+func NewBinaryWatch() *BinaryWatch {
+	watchOnce.Do(func() {
+		var timeTable = [...]int{1, 2, 4, 8, 1, 2, 4, 8, 16, 32}
+		var indexTable = [...]int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}
+		count := 0
+		watch = &BinaryWatch{timeTable: timeTable, indexTable: indexTable, count: &count}
+	})
+	return watch
+}
+
+//Compute 计算所有的可能的结果
+func (watch *BinaryWatch) Compute(num int) (resultTime []string) {
+	*(watch.count) = 0
 	reslutContainer := make(map[int][]int)
-	for i := 1; i <= len(indexTable); i++ {
+	for i := 1; i <= len(watch.indexTable); i++ {
 		result := make([]int, 0)
-		acquire(indexTable[:], i, &result, reslutContainer)
+		acquire(watch.indexTable[:], i, watch.count, &result, reslutContainer)
 	}
 	for _, v := range reslutContainer {
 		if len(v) == num { //符合条件
@@ -29,9 +46,9 @@ func binaryWatch(num int) (resultTime []string) {
 			hour := 0 //<=11
 			for _, v := range v {
 				if v > 3 { //超过三，表示分钟
-					mins += timeTable[v]
+					mins += watch.timeTable[v]
 				} else { //小时
-					hour += timeTable[v]
+					hour += watch.timeTable[v]
 				}
 
 			}
@@ -55,16 +72,15 @@ func binaryWatch(num int) (resultTime []string) {
 }
 
 //num包含个数
-
-func acquire(all []int, num int, result *[]int, reslutContainer map[int][]int) {
+func acquire(all []int, num int, count *int, result *[]int, reslutContainer map[int][]int) {
 	if *result == nil {
 		*result = make([]int, 0)
 	}
 
 	if num == 0 {
-		reslutContainer[count] = append(reslutContainer[count], (*result)...)
+		reslutContainer[*count] = append(reslutContainer[*count], (*result)...)
 		// fmt.Println("acquire=", result)
-		count++
+		*count++
 		return
 	}
 
@@ -73,7 +89,7 @@ func acquire(all []int, num int, result *[]int, reslutContainer map[int][]int) {
 	}
 	// fmt.Println("all=", all)
 	*result = append(*result, all[0])
-	acquire(all[1:], num-1, result, reslutContainer)
+	acquire(all[1:], num-1, count, result, reslutContainer)
 
 	// fmt.Println("result befor=", result)
 	// if len(*result) >= 1 {
@@ -81,7 +97,7 @@ func acquire(all []int, num int, result *[]int, reslutContainer map[int][]int) {
 	// }
 	// fmt.Println("result after=", result)
 	*result = (*result)[:len(*result)-1]
-	acquire(all[1:], num, result, reslutContainer)
+	acquire(all[1:], num, count, result, reslutContainer)
 }
 
 //计算排列的个数 n取出个数 m基数 n<=m
@@ -107,8 +123,26 @@ func factorial(num int64) (result int64) {
 	return
 }
 
-// 给定一个以字符串表示的非负整数 num，移除这个数中的 k 位数字，使得剩下的数字最小。
-func removeKdigits(num string, k int) (result string) {
+//Digits 题目https://leetcode-cn.com/problems/remove-k-digits/
+type Digits struct {
+	count *int
+}
+
+var digits *Digits
+var digitsOnce sync.Once
+
+//NewDigits 获取实体类
+func NewDigits() *Digits {
+	digitsOnce.Do(func() {
+		count := 0
+		digits = &Digits{&count}
+	})
+	return digits
+}
+
+//RemoveKdigits 给定一个以字符串表示的非负整数 num，移除这个数中的 k 位数字，使得剩下的数字最小。
+func (d *Digits) RemoveKdigits(num string, k int) (result string) {
+	*(d.count) = 0
 	if len(num) < k {
 		return result
 	}
@@ -128,7 +162,7 @@ func removeKdigits(num string, k int) (result string) {
 	reslutMap := make(map[int][]int)
 	for i := 1; i <= len(index); i++ {
 		result := make([]int, 0)
-		acquire(index, i, &result, reslutMap)
+		acquire(index, i, d.count, &result, reslutMap)
 	}
 	allSatisfy := []string{}
 	for _, v := range reslutMap {
