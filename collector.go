@@ -1,9 +1,10 @@
 package main
 
 import (
-	"crypto/rand"
-	"encoding/hex"
-	"fmt"
+	"encoding/gob"
+	"strconv"
+
+	"github.com/darwnc/collector/exercises"
 
 	"github.com/darwnc/collector/verify"
 	"gonum.org/v1/plot"
@@ -18,14 +19,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-const sessionKey = "SessionID"
-
-type user struct {
-	name     string
-	password string
-}
-
 func main() {
+	//需要注册，否则无法获取到该结构体
+	gob.Register(verify.User{})
+
 	gin.SetMode(gin.DebugMode)
 	engine := gin.New()
 	store := cookie.NewStore([]byte("gcookie"))
@@ -35,80 +32,79 @@ func main() {
 	engine.GET("/", func(c *gin.Context) {
 		c.JSON(200, gin.H{"pong": "hello"})
 	})
-	engine.POST("/post", verify.GetVerify()...)
-	group := engine.Group("/user", func(c *gin.Context) {
-		session := sessions.Default(c)
-		name := session.Get("name")
-		sessionID := session.Get(sessionKey)
-		if sessionID == nil || name == nil { //
-			//302转发
-			c.Redirect(http.StatusMovedPermanently, "/login")
-			fmt.Println("user group")
-		} else {
-			fmt.Println("user verify")
-		}
+	//需要验证的模块以/user为开头
+	verify.RegistUserGourp(engine)
+	verify.UserInfo("/info")
 
-	})
-	{
-		group.GET("/cosor", func(c *gin.Context) {
-			session := sessions.Default(c)
-			name := session.Get("name")
-			sess := session.Get(sessionKey)
-			c.JSON(200, gin.H{"user/cosor": name, "session": sess})
-		})
-	}
+	//无需验证的模块
+	engine.GET("/login", verify.Login)
+	engine.POST("/login", verify.Login)
+	engine.GET("/logout", verify.Logout)
+
 	engine.GET("/plot", plotTest)
 	engine.GET("/image", func(c *gin.Context) {
 		c.Header("Content-Type", "text/html; charset=utf-8")
 		c.String(200, `<img src="/plot"/>`)
 	})
-	engine.GET("/login", func(c *gin.Context) {
-		session := sessions.Default(c)
-		name := c.Query("name")
-		pwd := c.Query("password")
-		if len(name) == 0 || len(pwd) == 0 {
-			c.JSON(200, gin.H{"user": "empty", "password": "empty"})
-			return
+
+	engine.GET("/exercises/watch/", func(c *gin.Context) {
+		qNum := c.Query("num")
+		if num, err := strconv.Atoi(qNum); err != nil {
+			c.JSON(http.StatusOK, gin.H{"errmsg": err})
+		} else {
+			watch := exercises.NewBinaryWatch()
+			result := watch.Compute(num)
+			c.JSON(http.StatusOK, gin.H{"result": result})
 		}
-		sessionID := session.Get("sessionID")
-		if sessionID == nil {
-			buff := make([]byte, 16)
-			n, err := rand.Read(buff)
-			if err != nil {
-				c.JSON(200, gin.H{"login": "gen session err", "err": err})
-				return
-			}
-			sessionID = hex.EncodeToString(buff)
-			session.Set(sessionKey, sessionID)
-			session.Save()
-			c.JSON(200, gin.H{"login": "gen session success",
-				"count": n, sessionKey: sessionID})
-			return
-		}
-		session.Set(sessionKey, sessionID)
-		session.Set("name", name)
-		session.Save()
-		c.JSON(200, gin.H{
-			"name": name,
-		})
 
 	})
-	engine.GET("/logout", func(c *gin.Context) {
-		session := sessions.Default(c)
-		name := session.Get("name")
-		session.Delete(sessionKey)
-		session.Delete("name")
-		session.Save()
-		c.JSON(200, gin.H{
-			"logout": "success",
-			"name":   name,
-		})
+	engine.GET("/exercises/removeDigits/", func(c *gin.Context) {
+		qNum := c.Query("num")
+		qK := c.Query("k")
+		k, kErr := strconv.Atoi(qK)
+		num, nErr := strconv.Atoi(qNum)
+		if kErr != nil || nErr != nil {
+			c.JSON(http.StatusOK, gin.H{"errnummsg": nErr, "errkmsg": kErr})
+		} else {
+			digits := exercises.NewDigits()
+			result := digits.RemoveKdigits(strconv.Itoa(num), k)
+			c.JSON(http.StatusOK, gin.H{"result": result})
+		}
+
 	})
+	// engine.GET("/login", func(c *gin.Context) {
+	// 	session := sessions.Default(c)
+	// 	name := c.Query("name")
+	// 	pwd := c.Query("password")
+	// 	if len(name) == 0 || len(pwd) == 0 {
+	// 		c.JSON(200, gin.H{"user": "empty", "password": "empty"})
+	// 		return
+	// 	}
+	// 	sessionID := session.Get("sessionID")
+	// 	if sessionID == nil {
+	// 		buff := make([]byte, 16)
+	// 		n, err := rand.Read(buff)
+	// 		if err != nil {
+	// 			c.JSON(200, gin.H{"login": "gen session err", "err": err})
+	// 			return
+	// 		}
+	// 		sessionID = hex.EncodeToString(buff)
+	// 		session.Set(sessionKey, sessionID)
+	// 		session.Save()
+	// 		c.JSON(200, gin.H{"login": "gen session success",
+	// 			"count": n, sessionKey: sessionID})
+	// 		return
+	// 	}
+	// 	session.Set(sessionKey, sessionID)
+	// 	session.Set("name", name)
+	// 	session.Save()
+	// 	c.JSON(200, gin.H{
+	// 		"name": name,
+	// 	})
+
+	// })
+
 	engine.Run(":8080")
-}
-
-func userVerify(c *gin.Context) {
-
 }
 
 func plotTest(c *gin.Context) {
