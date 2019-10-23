@@ -96,8 +96,8 @@ func (verify *Verify) getUserInfo(c *gin.Context) {
 }
 
 //RegistUserGourp 注册用户组 以/user开头
-func (verify *Verify) registUserGourp(engine *gin.Engine) {
-	verify.userGourp = engine.Group("/user", verify.userFilter)
+func (verify *Verify) registUserGourp(gourp string, engine *gin.Engine) {
+	verify.userGourp = engine.Group(gourp, verify.userFilter)
 }
 
 //登出系统
@@ -128,8 +128,8 @@ func Logout(c *gin.Context) {
 }
 
 //RegistUserGourp 注册需要验证的信息
-func RegistUserGourp(engine *gin.Engine) {
-	defaultVerify.registUserGourp(engine)
+func RegistUserGourp(gourp string, engine *gin.Engine) {
+	defaultVerify.registUserGourp(gourp, engine)
 }
 
 //UserInfo 返回用户信息 url为/user/$path

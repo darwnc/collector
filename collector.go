@@ -30,7 +30,7 @@ func main() {
 		c.JSON(200, gin.H{"pong": "hello"})
 	})
 	//需要验证的模块以/user为开头
-	verify.RegistUserGourp(engine)
+	verify.RegistUserGourp("/user", engine)
 	verify.UserInfo("/info")
 
 	//无需验证的模块
