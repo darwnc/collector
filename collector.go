@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/gob"
-	"strconv"
 
 	"github.com/darwnc/collector/exercises"
 
@@ -11,8 +10,6 @@ import (
 	"gonum.org/v1/plot/plotter"
 	"gonum.org/v1/plot/plotutil"
 	"gonum.org/v1/plot/vg"
-
-	"net/http"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
@@ -47,31 +44,8 @@ func main() {
 		c.String(200, `<img src="/plot"/>`)
 	})
 
-	engine.GET("/exercises/watch/", func(c *gin.Context) {
-		qNum := c.Query("num")
-		if num, err := strconv.Atoi(qNum); err != nil {
-			c.JSON(http.StatusOK, gin.H{"errmsg": err})
-		} else {
-			watch := exercises.NewBinaryWatch()
-			result := watch.Compute(num)
-			c.JSON(http.StatusOK, gin.H{"result": result})
-		}
-
-	})
-	engine.GET("/exercises/removeDigits/", func(c *gin.Context) {
-		qNum := c.Query("num")
-		qK := c.Query("k")
-		k, kErr := strconv.Atoi(qK)
-		num, nErr := strconv.Atoi(qNum)
-		if kErr != nil || nErr != nil {
-			c.JSON(http.StatusOK, gin.H{"errnummsg": nErr, "errkmsg": kErr})
-		} else {
-			digits := exercises.NewDigits()
-			result := digits.RemoveKdigits(strconv.Itoa(num), k)
-			c.JSON(http.StatusOK, gin.H{"result": result})
-		}
-
-	})
+	engine.GET("/exercises/watch/", exercises.BinWatch)
+	engine.GET("/exercises/removeDigits/", exercises.RemoveDigits)
 	// engine.GET("/login", func(c *gin.Context) {
 	// 	session := sessions.Default(c)
 	// 	name := c.Query("name")

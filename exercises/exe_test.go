@@ -16,8 +16,8 @@ func TestBinaryWatch(t *testing.T) {
 	// fmt.Printf("return addr %#[1]v\n", len(&result[0]))
 	// combinationDetail(num, 0, 3, &result)
 	// fmt.Println(result)
-	watch := NewBinaryWatch()
-	result := watch.Compute(2)
+	watch := newBinaryWatch()
+	result := watch.compute(2)
 
 	fmt.Println("acqure=", result)
 
@@ -52,7 +52,7 @@ func returnValueB(a int, result *[]string) {
 }
 
 func TestRemoveDigits(t *testing.T) {
-	digits := NewDigits()
-	result := digits.RemoveKdigits("1432219", 3)
+	digits := newDigits()
+	result := digits.removeKdigits("1432219", 3)
 	fmt.Println(result)
 }

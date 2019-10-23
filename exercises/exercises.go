@@ -21,7 +21,7 @@ var watch *BinaryWatch
 //https://leetcode-cn.com/problems/binary-watch/
 //找出indexTable给定指数的组合，去timeTable内的值即可得到，然后判断是否合适规则
 //合并成一个从里面任意取第二部分的组合[1,2,4,8,1,2,4,8,16,32] [0,0,0,0,0,0,0,0,0,0]
-func NewBinaryWatch() *BinaryWatch {
+func newBinaryWatch() *BinaryWatch {
 	watchOnce.Do(func() {
 		var timeTable = [...]int{1, 2, 4, 8, 1, 2, 4, 8, 16, 32}
 		var indexTable = [...]int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}
@@ -32,7 +32,7 @@ func NewBinaryWatch() *BinaryWatch {
 }
 
 //Compute 计算所有的可能的结果
-func (watch *BinaryWatch) Compute(num int) (resultTime []string) {
+func (watch *BinaryWatch) compute(num int) (resultTime []string) {
 	*(watch.count) = 0
 	reslutContainer := make(map[int][]int)
 	for i := 1; i <= len(watch.indexTable); i++ {
@@ -132,7 +132,7 @@ var digits *Digits
 var digitsOnce sync.Once
 
 //NewDigits 获取实体类
-func NewDigits() *Digits {
+func newDigits() *Digits {
 	digitsOnce.Do(func() {
 		count := 0
 		digits = &Digits{&count}
@@ -141,7 +141,7 @@ func NewDigits() *Digits {
 }
 
 //RemoveKdigits 给定一个以字符串表示的非负整数 num，移除这个数中的 k 位数字，使得剩下的数字最小。
-func (d *Digits) RemoveKdigits(num string, k int) (result string) {
+func (d *Digits) removeKdigits(num string, k int) (result string) {
 	*(d.count) = 0
 	if len(num) < k {
 		return result
