@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>Collector</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <link rel="shortcut icon" href='../resources/favicon.ico' type=image/x-icon>
+    <style>
+		html, body {
+			height: 100%;
+			overflow: hidden;
+		}
+		body {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			background: linear-gradient(#8fd2ff, #60c0ff);
+		}
+		.butterfly {
+			width: 30px;
+			height: 100px;
+			transform: scale(0.3);
+			transform-style: preserve-3d;
+			perspective: 1200px;
+		}
+		@keyframes rotateButterfly {
+			from {
+				transform: rotateY(0deg) rotateX(70deg);
+			}
+			to {
+				transform: rotateY(360deg) rotateX(70deg);
+			}
+		}
+		.butterfly > .body {
+			width: 30px;
+			height: 100px;
+			position: relative;
+			transform-style: preserve-3d;
+			animation-name: rotateButterfly;
+			animation-duration: 10s;
+			animation-iteration-count: infinite;
+			animation-timing-function: linear;
+		}
+		.butterfly > .body > img {
+			width: 100%;
+		}
+		.butterfly > .body > .leftWing,
+		.butterfly > .body > .rightWing,
+		.butterfly > .body > .antenna {
+			position: absolute;
+		}
+		@keyframes flap {
+			from {
+				transform: rotateY(30deg);
+			}
+			to {
+				transform: rotateY(-30deg);
+			}
+		}
+		.butterfly > .body > .leftWing,
+		.butterfly > .body > .rightWing {
+			animation-name: flap;
+			animation-duration: 0.5s;
+			animation-iteration-count: infinite;
+			animation-timing-function: ease-in-out;
+		}
+		.butterfly > .body > .leftWing {
+			top: -240px;
+			right: calc(100% - 35px);
+			transform-origin: 100% 50%;
+			animation-direction: alternate;
+		}
+		.butterfly > .body > .rightWing {
+			top: -235px;
+			left: calc(100% - 25px);
+			transform-origin: 0% 50%;
+			animation-direction: alternate-reverse;
+		}
+		.butterfly > .body > .antenna {
+			bottom: calc(100% - 10px);
+			left: -50px;
+			transform: rotateX(-10deg);
+			transform-origin: 50% 100%;
+		}
+	</style>
+
+</head>
+<body>
+    <div class="butterfly">
+		<div class="body">
+			<img src="../resources/butterfly/body.png" />
+			<div class="antenna">
+				<img src="../resources/butterfly/antenna.png" />
+			</div>
+			<div class="leftWing">
+				<img src="../resources/butterfly/left-wing.png" />
+			</div>
+			<div class="rightWing">
+				<img src="../resources/butterfly/right-wing.png" />
+			</div>
+		</div>
+	</div>
+</body>
+</html>

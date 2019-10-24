@@ -2,6 +2,8 @@ package main
 
 import (
 	"encoding/gob"
+	"html/template"
+	"net/http"
 
 	"github.com/darwnc/collector/exercises"
 
@@ -24,20 +26,26 @@ func main() {
 	engine := gin.New()
 	store := cookie.NewStore([]byte("gcookie"))
 	engine.Use(sessions.Sessions("gsession", store))
-
+	engine.StaticFS("/resources", http.Dir("/Users/Jack/Documents/golearn/collector/static/resources"))
+	indexTemp := template.Must(template.ParseFiles("static/html/index.html"))
+	engine.SetHTMLTemplate(indexTemp)
+	// engine.LoadHTMLGlob("static/html/*")
+	// engine.StaticFile("/favicon.ico", "/Users/Jack/Documents/golearn/collector/favicon.ico")
 	engine.Use(gin.Logger(), gin.Recovery())
 	engine.GET("/", func(c *gin.Context) {
-		c.JSON(200, gin.H{"pong": "hello"})
+		// c.JSON(200, gin.H{"pong": "hello"})
+		c.HTML(http.StatusOK, "index.html", nil)
 	})
 	//需要验证的模块以/user为开头
 	verify.RegistUserGourp("/user", engine)
 	verify.UserInfo("/info")
 
+	engine.Any("/login", verify.Login)
+	engine.Any("/logout", verify.Logout)
 	//无需验证的模块
-	engine.GET("/login", verify.Login)
-	engine.POST("/login", verify.Login)
-	engine.GET("/logout", verify.Logout)
-
+	engine.GET("/jsonp", func(c *gin.Context) {
+		c.JSONP(200, gin.H{"foo": "bar"})
+	})
 	engine.GET("/plot", plotTest)
 	engine.GET("/image", func(c *gin.Context) {
 		c.Header("Content-Type", "text/html; charset=utf-8")
