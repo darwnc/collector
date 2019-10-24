@@ -21,13 +21,14 @@ import (
 func main() {
 	//需要注册，否则无法获取到该结构体
 	gob.Register(verify.User{})
-
+	// dir, _ := os.Getwd()
+	// fmt.Println("currentdir=", dir)
 	gin.SetMode(gin.DebugMode)
 	engine := gin.New()
 	store := cookie.NewStore([]byte("gcookie"))
 	engine.Use(sessions.Sessions("gsession", store))
-	engine.StaticFS("/resources", http.Dir("/Users/Jack/Documents/golearn/collector/static/resources"))
-	indexTemp := template.Must(template.ParseFiles("static/html/index.html"))
+	engine.StaticFS("/resources", http.Dir("./static/resources"))
+	indexTemp := template.Must(template.ParseFiles("./static/html/index.html"))
 	engine.SetHTMLTemplate(indexTemp)
 	// engine.LoadHTMLGlob("static/html/*")
 	// engine.StaticFile("/favicon.ico", "/Users/Jack/Documents/golearn/collector/favicon.ico")
