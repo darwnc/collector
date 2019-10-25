@@ -51,11 +51,13 @@ func main() {
 		c.HTML(200, "test.html", struct{ Title string }{"测试"})
 	})
 	//需要验证的模块以/user为开头
-	verify.RegistUserGourp("/user", engine)
+	verify.RegistUserGroup("/user", engine)
 	verify.UserInfo("/info")
 
-	engine.Any("/login", verify.Login)
-	engine.Any("/logout", verify.Logout)
+	// engine.Any("/login", verify.Login)
+	// engine.Any("/logout", verify.Logout)
+	engine.GET("/login", verify.Login)
+	engine.GET("/logout", verify.Logout)
 	//无需验证的模块
 	engine.GET("/jsonp", func(c *gin.Context) {
 		c.JSONP(200, gin.H{"foo": "bar"})
@@ -65,41 +67,19 @@ func main() {
 		c.Header("Content-Type", "text/html; charset=utf-8")
 		c.String(200, `<img src="/plot"/>`)
 	})
+	//转发，浏览器无变化，服务器内部
+	engine.GET("/t1", func(c *gin.Context) {
+		c.Request.URL.Path = "/t2"
+		engine.HandleContext(c)
+	})
+	engine.GET("/t2", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{"redirect": "form t1"})
+	})
+	verify.RegistAuthGroup("/auth", engine)
+	verify.AuthUser("/look")
 
 	engine.GET("/exercises/watch/", exercises.BinWatch)
 	engine.GET("/exercises/removeDigits/", exercises.RemoveDigits)
-	// engine.GET("/login", func(c *gin.Context) {
-	// 	session := sessions.Default(c)
-	// 	name := c.Query("name")
-	// 	pwd := c.Query("password")
-	// 	if len(name) == 0 || len(pwd) == 0 {
-	// 		c.JSON(200, gin.H{"user": "empty", "password": "empty"})
-	// 		return
-	// 	}
-	// 	sessionID := session.Get("sessionID")
-	// 	if sessionID == nil {
-	// 		buff := make([]byte, 16)
-	// 		n, err := rand.Read(buff)
-	// 		if err != nil {
-	// 			c.JSON(200, gin.H{"login": "gen session err", "err": err})
-	// 			return
-	// 		}
-	// 		sessionID = hex.EncodeToString(buff)
-	// 		session.Set(sessionKey, sessionID)
-	// 		session.Save()
-	// 		c.JSON(200, gin.H{"login": "gen session success",
-	// 			"count": n, sessionKey: sessionID})
-	// 		return
-	// 	}
-	// 	session.Set(sessionKey, sessionID)
-	// 	session.Set("name", name)
-	// 	session.Save()
-	// 	c.JSON(200, gin.H{
-	// 		"name": name,
-	// 	})
-
-	// })
-
 	engine.Run(":8080")
 }
 

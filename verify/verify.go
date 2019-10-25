@@ -26,10 +26,17 @@ func (user User) empty() bool {
 	return len(user.Name) == 0 || len(user.Passwrod) == 0
 }
 
+var scert = gin.H{
+	"jack":  "valueJack",
+	"jack1": "valueJack1",
+	"prew":  "valuePrew",
+}
+
 //Verify 需要验证的一组统一用verify.***来使用
 type Verify struct {
 	user      User
-	userGourp *gin.RouterGroup
+	userGroup *gin.RouterGroup
+	authGroup *gin.RouterGroup
 }
 
 var defaultVerify = &Verify{}
@@ -96,8 +103,25 @@ func (verify *Verify) getUserInfo(c *gin.Context) {
 }
 
 //RegistUserGourp 注册用户组 以/user开头
-func (verify *Verify) registUserGourp(gourp string, engine *gin.Engine) {
-	verify.userGourp = engine.Group(gourp, verify.userFilter)
+func (verify *Verify) registUserGroup(group string, engine *gin.Engine) {
+	verify.userGroup = engine.Group(group, verify.userFilter)
+}
+
+func (verify *Verify) registAuthGroup(group string, engine *gin.Engine) {
+	//简单使用一个map保存用户名密码，控制访问权限
+	verify.authGroup = engine.Group(group, gin.BasicAuth(gin.Accounts{
+		"jack":     "123",
+		"prewjack": "123",
+	}))
+}
+
+func (verify *Verify) authUser(c *gin.Context) {
+	user := c.MustGet(gin.AuthUserKey).(string)
+	if name, ok := scert[user]; ok {
+		c.JSON(http.StatusOK, gin.H{"user": user, "secret": name})
+	} else {
+		c.JSON(http.StatusOK, gin.H{"user": user, "secret": "NO SECRET :("})
+	}
 }
 
 //登出系统
@@ -127,14 +151,25 @@ func Logout(c *gin.Context) {
 	defaultVerify.logout(c)
 }
 
-//RegistUserGourp 注册需要验证的信息
-func RegistUserGourp(gourp string, engine *gin.Engine) {
-	defaultVerify.registUserGourp(gourp, engine)
+//RegistUserGroup 注册需要验证的信息
+func RegistUserGroup(group string, engine *gin.Engine) {
+	defaultVerify.registUserGroup(group, engine)
+}
+
+//RegistAuthGroup 注册基础认证
+// 需要在请求header中加入key=Authorization value=jack:1 base64编码，为其值
+func RegistAuthGroup(group string, engine *gin.Engine) {
+	defaultVerify.registAuthGroup(group, engine)
+}
+
+//AuthUser baseAuth基础认证，基于curl user:password@localhost:8080/group/path
+func AuthUser(path string) {
+	defaultVerify.authGroup.GET(path, defaultVerify.authUser)
 }
 
 //UserInfo 返回用户信息 url为/user/$path
 func UserInfo(path string) {
-	defaultVerify.userGourp.GET(path, defaultVerify.getUserInfo)
+	defaultVerify.userGroup.GET(path, defaultVerify.getUserInfo)
 }
 
 //GetVerify 获取验证模块
