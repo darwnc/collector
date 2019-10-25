@@ -2,7 +2,9 @@ package exercises
 
 import (
 	"fmt"
+	"html/template"
 	"math"
+	"os"
 	"strconv"
 	"testing"
 )
@@ -55,4 +57,18 @@ func TestRemoveDigits(t *testing.T) {
 	digits := newDigits()
 	result := digits.removeKdigits("1432219", 3)
 	fmt.Println(result)
+}
+
+func TestTemplate(t *testing.T) {
+	textT1 := `{{define "T1"}}{{.}}{{end}}`
+	textT2 := `{{define "T2"}}{{.}}{{end}}`
+	textT3 := `{{define "T3"}}{{.}}{{template "T1"}} {{template "T2"}}{{end}}
+	{{template "T3"}}`
+	textT := template.New("test1")
+	textT.Parse(textT1)
+	textT.Parse(textT2)
+	textT.Parse(textT3)
+	textT.ExecuteTemplate(os.Stdout, "T1", "test t1\n")
+	textT.ExecuteTemplate(os.Stdout, "T2", "test t2\n")
+	textT.ExecuteTemplate(os.Stdout, "T3", "test t3\n")
 }

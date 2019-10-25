@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/gob"
-	"html/template"
 	"net/http"
 
 	"github.com/darwnc/collector/exercises"
@@ -18,6 +17,9 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+var htmlFiles = []string{"./static/html/index.html", "./static/html/temp/header.html",
+	"./static/html/test.html", "./static/html/temp/footer.html"}
+
 func main() {
 	//需要注册，否则无法获取到该结构体
 	gob.Register(verify.User{})
@@ -28,14 +30,25 @@ func main() {
 	store := cookie.NewStore([]byte("gcookie"))
 	engine.Use(sessions.Sessions("gsession", store))
 	engine.StaticFS("/resources", http.Dir("./static/resources"))
-	indexTemp := template.Must(template.ParseFiles("./static/html/index.html"))
-	engine.SetHTMLTemplate(indexTemp)
-	// engine.LoadHTMLGlob("static/html/*")
+
+	// engine.HTMLRender.Instance(string, interface{})
+	// testTemp := template.Must(template.ParseFiles("./static/html/test.html", "./static/html/temp/header.html", "./static/html/temp/footer.html"))
+	// engine.SetHTMLTemplate(testTemp)
+	// engine.LoadHTMLGlob("static/html/*/*")
 	// engine.StaticFile("/favicon.ico", "/Users/Jack/Documents/golearn/collector/favicon.ico")
+	engine.LoadHTMLFiles(htmlFiles...)
 	engine.Use(gin.Logger(), gin.Recovery())
 	engine.GET("/", func(c *gin.Context) {
 		// c.JSON(200, gin.H{"pong": "hello"})
-		c.HTML(http.StatusOK, "index.html", nil)
+		// indexTemp := template.Must(template.ParseFiles())
+		// engine.SetHTMLTemplate(indexTemp)
+		//define "home/index.html" 否则默认index.html即文件名加后缀
+		c.HTML(http.StatusOK, "home/index.html", struct{ Title string }{"首页"})
+	})
+	engine.GET("/test", func(c *gin.Context) {
+		// testTemp := template.Must(template.ParseFiles("./static/html/test.html", "./static/html/temp/header.html", "./static/html/temp/footer.html"))
+		// engine.SetHTMLTemplate(testTemp)
+		c.HTML(200, "test.html", struct{ Title string }{"测试"})
 	})
 	//需要验证的模块以/user为开头
 	verify.RegistUserGourp("/user", engine)

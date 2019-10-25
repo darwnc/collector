@@ -1,12 +1,6 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset='utf-8'>
-    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
-    <title>Collector</title>
-    <meta name='viewport' content='width=device-width, initial-scale=1'>
-    <link rel="shortcut icon" href='../resources/favicon.ico' type=image/x-icon>
-    <style>
+{{define "home/index.html"}}
+{{template "header" .}}
+<style>
 		html, body {
 			height: 100%;
 			overflow: hidden;
@@ -84,7 +78,6 @@
 			transform-origin: 50% 100%;
 		}
 	</style>
-
 </head>
 <body>
     <div class="butterfly">
@@ -101,5 +94,5 @@
 			</div>
 		</div>
 	</div>
-</body>
-</html>
+{{template "footer"}}
+{{end}}
