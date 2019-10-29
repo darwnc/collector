@@ -71,6 +71,10 @@ func main() {
 	engine.GET("/t1", func(c *gin.Context) {
 		c.Request.URL.Path = "/t2"
 		engine.HandleContext(c)
+		// reader := strings.NewReader("string reader")
+		// reader.WriteTo(w)
+		// ioutil.ReadAll(r)
+
 	})
 	engine.GET("/t2", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"redirect": "form t1"})
@@ -81,6 +85,7 @@ func main() {
 	engine.GET("/exercises/watch/", exercises.BinWatch)
 	engine.GET("/exercises/removeDigits/", exercises.RemoveDigits)
 	engine.Run(":8080")
+	// autotls.Run(engine, "172.16.0.31")
 }
 
 func plotTest(c *gin.Context) {
