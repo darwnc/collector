@@ -45,3 +45,19 @@ func sumLeft(node *TreeNode, sum *int) {
 	}
 	sumLeft(node.leftNode, sum)
 }
+
+// https://leetcode-cn.com/problems/n-ary-tree-preorder-traversal/
+func preorder(node *TreeNode) {
+	nodes := []*TreeNode{node}
+	for len(nodes) != 0 {
+
+		if nodes[0].leftNode != nil {
+			nodes = append(nodes, nodes[0].leftNode)
+		}
+		if nodes[0].rightNode != nil {
+			nodes = append(nodes, nodes[0].rightNode)
+		}
+		fmt.Println("value=", nodes[0].val)
+		nodes = nodes[1:]
+	}
+}

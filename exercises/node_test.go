@@ -12,7 +12,7 @@ func TestNode(t *testing.T) {
 	rightNodeLeft := RootNode(12)
 	rightNodeRight := RootNode(13)
 
-	rightNodeRightLeft := RootNode(13)
+	rightNodeRightLeft := RootNode(15)
 	rightNodeLeft.addLeftNode(rightNodeRightLeft)
 
 	rightNode.addLeftNode(rightNodeLeft)
@@ -21,4 +21,6 @@ func TestNode(t *testing.T) {
 	rootNode.addLeftNode(leftNode)
 	fmt.Println(rootNode)
 	fmt.Println("sum=", sumOfLeftLeaves(rootNode))
+
+	preorder(rootNode)
 }
