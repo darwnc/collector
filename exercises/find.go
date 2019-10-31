@@ -22,6 +22,9 @@ func findSubstring(s string, words []string) []int {
 	r := []rune(s)
 	count := 0
 	for k, v := range r {
+		if len(r)-k < len(matchString) {
+			break
+		}
 		// fmt.Println(k, "--", string(v))
 		//判断是否匹配match中任何一个中的第一个，有则继续，无责break跳出
 		value := string(v)
