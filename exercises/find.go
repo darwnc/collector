@@ -3,6 +3,7 @@ package exercises
 import (
 	"fmt"
 	"strings"
+	"unicode/utf8"
 )
 
 // https://leetcode-cn.com/problems/substring-with-concatenation-of-all-words/
@@ -19,40 +20,46 @@ func findSubstring(s string, words []string) []int {
 	// copy(wordsCopy, words)
 	// fmt.Println("copy=", wordsCopy)
 	matchString := strings.Join(words, "")
+	matchStringLen := utf8.RuneCountInString(matchString)
 	r := []rune(s)
 	count := 0
 	for k, v := range r {
-		if len(r)-k < len(matchString) {
+		if len(r)-k < matchStringLen {
 			break
 		}
 		// fmt.Println(k, "--", string(v))
 		//判断是否匹配match中任何一个中的第一个，有则继续，无责break跳出
-		value := string(v)
+		// value := string(v)
 
+		// wordsCopy := make([]string, len(words))
+		// wordsCopy = wordsCopy[0:len(words)]
 		wordsCopy := make([]string, len(words))
 		copy(wordsCopy, words)
+		// fmt.Println(wordsCopy)
 		moveTo := 0
 		for {
-
-			if k+moveTo >= len(r) || len(r)-k < len(matchString) { //剩余的长度不够真个字符串的长度，则不符合
+			if k+moveTo >= len(r) || len(r)-k < matchStringLen { //剩余的长度不够真个字符串的长度，则不符合
 				break
 			}
 			count++
-			value = string(r[k+moveTo])
+			// value = string(r[k+moveTo])
+			v = r[k+moveTo]
 			// fmt.Println("value=", value)
 			// fmt.Println("word=", wordsCopy)
 			// fmt.Println("moveTo=", moveTo)
 			have := false
 			for i := 0; i < len(wordsCopy); i++ {
-				if len(words[i])+k+moveTo > len(r) {
+				wordRune := []rune(wordsCopy[i])
+				if len(wordRune)+k+moveTo > len(r) {
 					break
 				}
-				// fmt.Println("length==")
+				// fmt.Println("length==", string(wordRune[0]))
 				// fmt.Println("wordsCopy==", wordsCopy[i])
-				if wordsCopy[i][0:1] == value { //第一个字符相等 跳过[i]字符验证下一组
-					if s[k+moveTo:len(wordsCopy[i])+k+moveTo] == wordsCopy[i] { //符合，下一个match的item
+				if wordRune[0] == v { //第一个字符相等 跳过[i]字符验证下一组
+					wordLen := len(wordRune)
+					if string(r[k+moveTo:wordLen+k+moveTo]) == wordsCopy[i] { //符合，下一个match的item
 						// 删除当前item进行下一次迭代 ，下一次匹配的是当前s[k:len(words[i])+k+1]的值
-						moveTo += len(wordsCopy[i])
+						moveTo += wordLen
 						wordsCopy = append(wordsCopy[:i], wordsCopy[i+1:]...)
 						// fmt.Println("substring s=", s[k:len(words[i])+k])
 						// fmt.Println("match=", words[i])
@@ -72,6 +79,7 @@ func findSubstring(s string, words []string) []int {
 				break
 			}
 		}
+		count++
 	}
 	fmt.Println("count=", count)
 	return result
