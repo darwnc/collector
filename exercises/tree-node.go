@@ -2,6 +2,7 @@ package exercises
 
 import (
 	"fmt"
+	"strconv"
 )
 
 //TreeNode https://leetcode-cn.com/problems/sum-of-left-leaves/
@@ -48,16 +49,46 @@ func sumLeft(node *TreeNode, sum *int) {
 
 // https://leetcode-cn.com/problems/n-ary-tree-preorder-traversal/
 func preorder(node *TreeNode) {
-	nodes := []*TreeNode{node}
-	for len(nodes) != 0 {
-
-		if nodes[0].leftNode != nil {
-			nodes = append(nodes, nodes[0].leftNode)
-		}
-		if nodes[0].rightNode != nil {
-			nodes = append(nodes, nodes[0].rightNode)
-		}
-		fmt.Println("value=", nodes[0].val)
-		nodes = nodes[1:]
+	// nodes := []*TreeNode{node}
+	var leftNode []*TreeNode
+	var rightNode []*TreeNode
+	// collect.
+	if node.leftNode != nil {
+		leftNode = []*TreeNode{node.leftNode}
 	}
+	if node.rightNode != nil {
+		rightNode = []*TreeNode{node.rightNode}
+	}
+	left := []string{}
+	right := []string{}
+	for len(leftNode) != 0 || len(rightNode) != 0 {
+		if len(leftNode) != 0 {
+			if leftNode[0].leftNode != nil {
+				leftNode = append(leftNode, leftNode[0].leftNode)
+			}
+
+			if leftNode[0].rightNode != nil {
+				rightNode = append(rightNode, leftNode[0].rightNode)
+			}
+			left = append(left, strconv.Itoa(leftNode[0].val))
+			// fmt.Println("left=", leftNode[0].val)
+			leftNode = leftNode[1:]
+		}
+
+		if len(rightNode) != 0 {
+			if rightNode[0].leftNode != nil {
+				leftNode = append(leftNode, rightNode[0].leftNode)
+			}
+
+			if rightNode[0].rightNode != nil {
+				rightNode = append(rightNode, rightNode[0].rightNode)
+			}
+			right = append(right, strconv.Itoa(rightNode[0].val))
+			// fmt.Println("right=", rightNode[0].val)
+			rightNode = rightNode[1:]
+		}
+
+	}
+	fmt.Println(left)
+	fmt.Println(right)
 }
