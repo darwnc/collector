@@ -25,3 +25,6 @@ func TestMatchSubseq(t *testing.T) {
 	// fmt.Println(strings.SplitN("abd", "b", 2))
 	// fmt.Println(strings.Count("aaaa", "aa"))
 }
+func TestAtom(t *testing.T) {
+	countOfAtoms("19AaZazK4(O2N(SiO3)2)2")
+}

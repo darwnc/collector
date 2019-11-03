@@ -23,10 +23,10 @@ func BinWatch(c *gin.Context) {
 func RemoveDigits(c *gin.Context) {
 	qNum := c.Query("num")
 	qK := c.Query("k")
-	k, kErr := strconv.Atoi(qK)
+	k, err := strconv.Atoi(qK)
 	num, nErr := strconv.Atoi(qNum)
-	if kErr != nil || nErr != nil {
-		c.JSON(http.StatusOK, gin.H{"num&k": "num与k需为数字", "errnummsg": nErr, "errkmsg": kErr})
+	if err != nil || nErr != nil {
+		c.JSON(http.StatusOK, gin.H{"num&k": "num与k需为数字", "errnummsg": nErr, "errkmsg": err})
 	} else {
 		digits := newDigits()
 		result := digits.removeKdigits(strconv.Itoa(num), k)
