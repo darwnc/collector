@@ -129,10 +129,15 @@ func countOfAtoms(formula string) string {
 	rightTurbo := 1
 	for strings.Index(copyFormula, "(") != -1 {
 
-		start := strings.IndexAny(copyFormula, "(")
-		end := strings.LastIndexAny(copyFormula, ")")
+		start := strings.Index(copyFormula, "(")
+		end := strings.LastIndex(copyFormula, ")")
 		// fmt.Println("copyFormula=", copyFormula[start+1:end])
+		if start == 0 {
+			if len(copyFormula) > end+1 {
 
+			}
+			// copyFormula[end]
+		}
 		// rightTurbo = 1
 		fmt.Println("start=", copyFormula[0:start])
 
@@ -151,7 +156,6 @@ func countOfAtoms(formula string) string {
 		fmt.Println("trubo=", rightTurbo)
 		copyFormula = copyFormula[start+1 : end]
 		fmt.Println("after=", copyFormula)
-		// break
 	}
 	countAtom(copyFormula, elementCount, rightTurbo)
 	result := make([]string, 0)
@@ -170,6 +174,38 @@ func countOfAtoms(formula string) string {
 	return strings.Join(result, "")
 }
 
+func split(formula string) {
+	count := 0
+	countBracket := 0
+	outer := make([]string, 0)
+	for k, v := range formula {
+
+		if v == leftBracket { //寻找最近的一个最右括号，
+			count++
+			fmt.Println("count=", count)
+			for i := 1; i+k < len(formula); i++ {
+				if formula[i+k] == leftBracket { //(
+					countBracket++
+					fmt.Println("leftBracketIndex=", i+k)
+				}
+				if formula[i+k] == rightBracket {
+					countBracket--
+					fmt.Println("rightBracketIndex=", i+k)
+				}
+
+				if countBracket == -1 { //两个相邻的括号）>( 闭合
+					fmt.Println(formula[k+1 : i+k])
+					fmt.Println(formula[i+k : i+k])
+					countBracket = 0
+					break
+				}
+			}
+		} else {
+			outer = append(outer, string(v))
+		}
+	}
+}
+
 type stringSlice []string
 
 func (ss stringSlice) Len() int {
@@ -185,29 +221,52 @@ func (ss stringSlice) Swap(i, j int) {
 func countAtom(f string, ele map[string]int, turbo int) {
 	// buff := []rune(f)
 	// buff := bytes.Runes([]byte(f))
-	for k := range ele {
-		// b := []byte(k)[0]
-		// index := bytes.IndexByte(buff, b)
-		//k 表达为\x00**这样的字符，去掉前面的00
-		// fmt.Printf("element=%#v len(k)=%v\n", k, len(k))
-		// rk := []byte(k)
-		// fmt.Printf("element=%#v\n", string(rk))
-		index := strings.Index(f, k)
-		// index := strings.IndexAny(f, k)
-		if index == -1 {
-			continue
-		}
-		if len(f) >= index+len(k)+1 {
-			// fmt.Println("index=", index, "atom=", k, "ele=", f, "countAtom=", string(f[index]))
-			if n, err := strconv.Atoi(f[index+len(k) : index+len(k)+1]); err == nil {
-				ele[k] = ele[k] + n*turbo
+	for len(f) != 0 {
+		for k := range ele {
+			// b := []byte(k)[0]
+			// index := bytes.IndexByte(buff, b)
+			//k 表达为\x00**这样的字符，去掉前面的00
+			// fmt.Printf("element=%#v len(k)=%v\n", k, len(k))
+			fmt.Printf("%#v\n", f)
+			index := strings.Index(f, k)
+			// strings.Fields(s)
+			// index := strings.IndexAny(f, k)
+			if index == -1 {
+				continue
+			}
+			if len(f) >= index+len(k)+1 {
+				// fmt.Println("index=", index, "atom=", k, "ele=", f, "countAtom=", string(f[index]))
+				n := 0
+				// var err error
+				i := 1
+				for ; len(f) >= index+len(k)+i; i++ {
+					if in, err := strconv.Atoi(f[index+len(k) : index+len(k)+i]); err == nil { //出错，部位nil,记录前一位数字
+						n = in
+					} else {
+						break
+					}
+				}
+				if n > 0 {
+					ele[k] = ele[k] + n*turbo
+					f = f[0:index] + f[index+len(k)+i-1:]
+				} else {
+					ele[k] = ele[k] + 1*turbo
+					f = f[0:index] + f[index+len(k):]
+				}
 			} else {
 				ele[k] = ele[k] + 1*turbo
 			}
-		} else {
-			ele[k] = ele[k] + 1*turbo
+			if len(f) == 0 {
+				break
+			}
+			// if index == 0 {
+			// 	f = f[len(k):]
+			// } else {
+			// 	f = f[0:index] + f[index+len(k):]
+			// }
 		}
 	}
+
 }
 
 func rangeaz(r rune) bool {
