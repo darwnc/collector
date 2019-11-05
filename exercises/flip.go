@@ -127,17 +127,14 @@ func countOfAtoms(formula string) string {
 	copyFormula := formula
 	// leftTrubo := 1
 	rightTurbo := 1
-	for strings.Index(copyFormula, "(") != -1 {
 
+	// bracketPos := make(map[int][2]int, 0)
+	// split(formula, elementCount)
+
+	for strings.Index(copyFormula, "(") != -1 {
 		start := strings.Index(copyFormula, "(")
 		end := strings.LastIndex(copyFormula, ")")
 		// fmt.Println("copyFormula=", copyFormula[start+1:end])
-		if start == 0 {
-			if len(copyFormula) > end+1 {
-
-			}
-			// copyFormula[end]
-		}
 		// rightTurbo = 1
 		fmt.Println("start=", copyFormula[0:start])
 
@@ -177,12 +174,12 @@ func countOfAtoms(formula string) string {
 func split(formula string) {
 	count := 0
 	countBracket := 0
-	outer := make([]string, 0)
+	// outer := make([]string, 0)
+	// leave := 0
 	for k, v := range formula {
-
 		if v == leftBracket { //寻找最近的一个最右括号，
 			count++
-			fmt.Println("count=", count)
+
 			for i := 1; i+k < len(formula); i++ {
 				if formula[i+k] == leftBracket { //(
 					countBracket++
@@ -194,16 +191,35 @@ func split(formula string) {
 				}
 
 				if countBracket == -1 { //两个相邻的括号）>( 闭合
+					// leave = len(formula) - (i + k)-1
 					fmt.Println(formula[k+1 : i+k])
-					fmt.Println(formula[i+k : i+k])
+					//计算括号外所有的元素的值
+					// left := formula[0:k] + formula[i+k+1:]
+					n, _ := acquireNumber(formula, ")", i+k)
+					fmt.Println("number=", n)
+					// countAtom(formula[0:k]+formula[i+k+1:], elementCount, turbo)
+					// if n == 0 { //不是数字
+
+					// } else { //数字 长度为ni
+					// 	turbo = turbo * n
+					// }
+					// fmt.Println("left=", formula[0:k]+formula[i+k+1:])
+					// fmt.Println("left=", formula[i+k+1:i+k+leave])
 					countBracket = 0
 					break
 				}
 			}
-		} else {
-			outer = append(outer, string(v))
 		}
 	}
+	fmt.Println("count=", count)
+}
+
+func include(x, y [2]int) bool {
+	if x[0] < y[0] && x[1] > y[1] { //包含在范围内
+		return true
+	}
+	//否则不包含
+	return false
 }
 
 type stringSlice []string
@@ -235,17 +251,7 @@ func countAtom(f string, ele map[string]int, turbo int) {
 				continue
 			}
 			if len(f) >= index+len(k)+1 {
-				// fmt.Println("index=", index, "atom=", k, "ele=", f, "countAtom=", string(f[index]))
-				n := 0
-				// var err error
-				i := 1
-				for ; len(f) >= index+len(k)+i; i++ {
-					if in, err := strconv.Atoi(f[index+len(k) : index+len(k)+i]); err == nil { //出错，部位nil,记录前一位数字
-						n = in
-					} else {
-						break
-					}
-				}
+				n, i := acquireNumber(f, k, index)
 				if n > 0 {
 					ele[k] = ele[k] + n*turbo
 					f = f[0:index] + f[index+len(k)+i-1:]
@@ -259,14 +265,21 @@ func countAtom(f string, ele map[string]int, turbo int) {
 			if len(f) == 0 {
 				break
 			}
-			// if index == 0 {
-			// 	f = f[len(k):]
-			// } else {
-			// 	f = f[0:index] + f[index+len(k):]
-			// }
 		}
 	}
+}
 
+//获取下一个元素是否为数字 k在f中的位置，index
+func acquireNumber(f, k string, index int) (n, i int) {
+	i = 1
+	for ; len(f) >= index+len(k)+i; i++ {
+		if in, err := strconv.Atoi(f[index+len(k) : index+len(k)+i]); err == nil { //出错，部位nil,记录前一位数字
+			n = in
+		} else {
+			break
+		}
+	}
+	return
 }
 
 func rangeaz(r rune) bool {
