@@ -1,5 +1,14 @@
 GO=go
-all:
+GO_V=$(GO) version
+GO_B=$(GO) build
+NAME=app
+all:build
+	
+build:
+	@echo "test build"
+	@echo "--------version------------"
+	$(GO_V)
 	@echo ""
-	@echo "This is a make command test"
-	@echo "End test"
+	@echo "buildding"
+	$(GO_B) -o $(NAME) -v
+	@echo "finish"
