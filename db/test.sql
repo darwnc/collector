@@ -19,6 +19,16 @@ CREATE TABLE cats
   PRIMARY KEY     (id)                                  # Make the id the primary key
 );
 
+CREATE TABLE shop (
+    article INT UNSIGNED  DEFAULT '0000' NOT NULL,
+    dealer  CHAR(20)      DEFAULT ''     NOT NULL,
+    price   DECIMAL(16,2) DEFAULT '0.00' NOT NULL,
+    PRIMARY KEY(article, dealer));
+INSERT INTO shop VALUES
+    (1,'A',3.45),(1,'B',3.99),(2,'A',10.99),(3,'B',1.45),
+    (3,'C',1.69),(3,'D',1.25),(4,'D',19.95);
+
+
 SHOW TABLES;
 
 DESCRIBE cats;
@@ -63,6 +73,122 @@ SELECT * FROM `cats` WHERE name LIKE '_____';
 
 SELECT * FROM `cats` WHERE REGEXP_LIKE(name, '^.{5}$');
 
+SELECT name count(*) FROM `cats` GROUP BY name
+
+-- Find the number, dealer, and price of the most expensive article.
+SELECT MAX(article) AS article FROM shop;
+
+SELECT article, dealer, price
+FROM   shop
+WHERE  price=(SELECT MAX(price) FROM shop);
+
+SELECT s1.article, s1.dealer, s1.price
+FROM shop s1
+LEFT JOIN shop s2 ON s1.price < s2.price
+WHERE s2.article IS NULL;
+
+SELECT article, dealer, price
+FROM shop
+ORDER BY price DESC
+LIMIT 1;
+-- Find the highest price per article.
+SELECT article, MAX(price) AS price
+FROM   shop
+GROUP BY article
+ORDER BY article;
+
+-- For each article, find the dealer or dealers with the most expensive price.
+SELECT article, dealer, price
+FROM   shop s1
+WHERE  price=(SELECT MAX(s2.price)
+              FROM shop s2
+              WHERE s1.article = s2.article)
+ORDER BY article;
+
+SELECT s1.article, dealer, s1.price
+FROM shop s1
+JOIN (
+  SELECT article, MAX(price) AS price
+  FROM shop
+  GROUP BY article) AS s2
+  ON s1.article = s2.article AND s1.price = s2.price
+ORDER BY article;
+
+SELECT s1.article, s1.dealer, s1.price
+FROM shop s1
+LEFT JOIN shop s2 ON s1.article = s2.article AND s1.price < s2.price
+WHERE s2.article IS NULL
+ORDER BY s1.article;
+-- window function
+WITH s1 AS (
+   SELECT article, dealer, price,
+          RANK() OVER (PARTITION BY article
+                           ORDER BY price DESC
+                      ) AS `Rank`
+     FROM shop
+)
+SELECT article, dealer, price
+  FROM s1
+  WHERE `Rank` = 1
+ORDER BY article;
+-- find the articles with the highest and lowest price you can do this:
+SELECT @min_price:=MIN(price),@max_price:=MAX(price) FROM shop;
+SELECT * FROM shop WHERE price=@min_price OR price=@max_price;
+
+
+-- Using Foreign Keys --------
+
+CREATE TABLE person (
+    id SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    name CHAR(60) NOT NULL,
+    PRIMARY KEY (id)
+);
+
+CREATE TABLE shirt (
+    id SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    style ENUM('t-shirt', 'polo', 'dress') NOT NULL,
+    color ENUM('red', 'blue', 'orange', 'white', 'black') NOT NULL,
+    owner SMALLINT UNSIGNED NOT NULL REFERENCES person(id),
+    PRIMARY KEY (id)
+);
+INSERT INTO person VALUES (NULL, 'Antonio Paz');
+SELECT @last := LAST_INSERT_ID();
+
+INSERT INTO shirt VALUES
+(NULL, 'polo', 'blue', @last),
+(NULL, 'dress', 'white', @last),
+(NULL, 't-shirt', 'blue', @last);
+
+INSERT INTO person VALUES (NULL, 'Lilliana Angelovska');
+
+SELECT @last := LAST_INSERT_ID();
+
+INSERT INTO shirt VALUES
+(NULL, 'dress', 'orange', @last),
+(NULL, 'polo', 'red', @last),
+(NULL, 'dress', 'blue', @last),
+(NULL, 't-shirt', 'white', @last);
+SELECT * FROM person;
+SELECT * FROM shirt;
+
+SELECT s.* FROM person p INNER JOIN shirt s
+   ON s.owner = p.id
+ WHERE p.name LIKE 'Lilliana%'
+   AND s.color <> 'white';
+
+CREATE TABLE animals (
+    grp ENUM('fish','mammal','bird') NOT NULL,
+    id MEDIUMINT NOT NULL AUTO_INCREMENT,
+    name CHAR(30) NOT NULL,
+    PRIMARY KEY (grp,id)
+) ENGINE=MyISAM;
+
+INSERT INTO animals (grp,name) VALUES
+    ('mammal','dog'),('mammal','cat'),
+    ('bird','penguin'),('fish','lax'),('mammal','whale'),
+    ('bird','ostrich');
+insert into animals (grp,name) values ('mammal','dont know');
+SELECT * FROM animals ORDER BY grp,id;
 -----------------------------------------------------------
 select DISTINCT name from `y_user`;
 SELECT * from `y_user` WHERE id<>1;
