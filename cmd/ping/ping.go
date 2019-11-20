@@ -13,7 +13,7 @@ type pingEntity struct {
 	//回显次数
 	count int
 	//主机名
-	host string
+	host []string
 	//数据包大小
 	size int
 }
@@ -29,27 +29,49 @@ func (entity pingEntity) ping() {
 	send[1] = 0 // code 0
 	send[2] = 0 // checksum
 	send[3] = 0 // checksum
-	send[4], send[5] = entity.host[0], entity.host[1]
-	send[6], send[7] = 1>>8, 1&255
-	check := checkSum(send)
-	send[2] = byte(check >> 8)
-	send[3] = byte(check & 255)
-	for {
-		conn, err := net.DialTimeout("ip4:icmp", entity.host, entity.timeOut)
-		if err != nil {
-			fmt.Println("err=", err)
-			break
-		}
-		fmt.Println(send)
-		conn.Write(send)
 
-		recv := make([]byte, recvLen)
-		conn.Read(recv)
-		fmt.Println(recv)
-		ttl := int(recv[8])
-		fmt.Println("来自 ", conn.RemoteAddr(), "ms TTL=", strconv.Itoa(ttl))
-		time.Sleep(1000 * 1000 * 1000 * 3)
+	send[6], send[7] = 1>>8, 1&255
+
+	for _, v := range entity.host {
+		seq := 1
+		send[4], send[5] = v[0], v[1]
+		check := checkSum(send)
+		send[2] = byte(check >> 8)
+		send[3] = byte(check & 255)
+		fmt.Println("host", v)
+		count := entity.count
+		for count > 0 {
+			conn, err := net.DialTimeout("ip4:icmp", v, entity.timeOut)
+			if err != nil {
+				fmt.Println("err=", err)
+				break
+			}
+			fmt.Println(send)
+			startTime := time.Now()
+			conn.SetDeadline(startTime.Add(time.Duration(1000 * 1000 * 1000)))
+			conn.Write(send)
+			recv := make([]byte, recvLen)
+			_, readErr := conn.Read(recv)
+			if readErr != nil {
+				fmt.Println("ReadError", readErr)
+				break
+			}
+			duration := time.Since(startTime)
+			startCheck := replyHeadLen + 4
+			if recv[startCheck] != send[4] || recv[startCheck+1] != send[5] || recv[startCheck+2] != send[6] || recv[startCheck+3] != send[7] || recv[replyHeadLen] == 11 {
+				//err
+				fmt.Println(recv)
+				break
+			}
+
+			ttl := int(recv[8])
+			fmt.Println("seq=", seq, "duration=", duration, "addr=", conn.RemoteAddr(), "ms TTL=", strconv.Itoa(ttl))
+			seq++
+			count--
+			time.Sleep(1000 * 1000 * 1000)
+		}
 	}
+
 }
 func checkSum(send []byte) uint16 {
 	sum := 0
