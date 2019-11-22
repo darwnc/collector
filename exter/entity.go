@@ -13,6 +13,7 @@ type BaseResp struct {
 	T       int64  `json:"t"`
 }
 
+//TestRequest 测试
 type TestRequest struct {
 	Header  Header      `json:"header"`
 	Payload BasePayload `json:"payload"`
