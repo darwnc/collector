@@ -2,9 +2,11 @@ package main
 
 import (
 	"encoding/gob"
+	"fmt"
 	"net/http"
 
 	"github.com/darwnc/collector/exercises"
+	"github.com/darwnc/collector/exter"
 
 	"github.com/darwnc/collector/verify"
 	"gonum.org/v1/plot"
@@ -84,6 +86,13 @@ func main() {
 
 	engine.GET("/exercises/watch/", exercises.BinWatch)
 	engine.GET("/exercises/removeDigits/", exercises.RemoveDigits)
+	var tr exter.TestRequest
+	engine.GET("/test_crypto", exter.Wrap(&tr, func() interface{} {
+		fmt.Println("service=", tr.Header.Service)
+		fmt.Printf("%#v", tr)
+		return tr
+	}))
+
 	engine.Run(":8080")
 	// autotls.Run(engine, "172.16.0.31")
 }
