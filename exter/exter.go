@@ -97,14 +97,14 @@ func (d decryptBody) Bind(reqeust *http.Request, data interface{}) error {
 // 	Cast()
 // }
 
-//Param 请求参数
+//Process 处理报问题
 //返回interface{} 返回报文
-type Param func() interface{}
+type Process func() interface{}
 
-//Wrap 赋值data Param接收返回的结构体
+//Wrap 赋值data Process接收返回的结构体
 // 请求结构体{header:{},payload:{}} 与其绑定失败则不执行param
 // 返回结构体 BaseResp like {data{},code,msg}
-func Wrap(data interface{}, param Param) gin.HandlerFunc {
+func Wrap(data interface{}, param Process) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		//header相关操作
 		// ShouldBindWith(obj interface{}, b binding.Binding)
