@@ -5,12 +5,14 @@ package exter
 // 	Data interface{}
 // }
 
-//BaseResp 基础报文实体
-type BaseResp struct {
+//Resp 基础报文实体
+type Resp struct {
 	//返回码
-	Code    int    `json:"code"`
-	Message string `json:"msg"`
-	T       int64  `json:"t"`
+	Code    int         `json:"code"`
+	Message string      `json:"msg"`
+	T       int64       `json:"t"`
+	Service string      `json:"service"`
+	Data    interface{} `json:"data"`
 }
 
 //TestRequest 测试

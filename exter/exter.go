@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"time"
 
 	"github.com/darwnc/collector/crypto"
 
@@ -97,9 +98,8 @@ func (d decryptBody) Bind(reqeust *http.Request, data interface{}) error {
 // 	Cast()
 // }
 
-//Process 处理报问题
-//返回interface{} 返回报文
-type Process func() interface{}
+//Process 处理返回
+type Process func(*Resp)
 
 //Wrap 赋值data Process接收返回的结构体
 // 请求结构体{header:{},payload:{}} 与其绑定失败则不执行param
@@ -109,15 +109,24 @@ func Wrap(data interface{}, param Process) gin.HandlerFunc {
 		//header相关操作
 		// ShouldBindWith(obj interface{}, b binding.Binding)
 		// var body testRequest
+		resp := Resp{}
+
+		resp.T = time.Now().Unix()
 		if err := c.ShouldBindWith(data, decryptBody{}); err != nil {
 			fmt.Println(err.Error())
-			c.Render(http.StatusOK, cryptoJSON{err.Error()})
+			resp.Data = err.Error()
+			resp.Message = "请求失败"
+			resp.Code = 0x000001
+			c.Render(http.StatusOK, cryptoJSON{resp})
 			return
 			//解析错误
 		}
 		// buff, _ := ioutil.ReadAll(c.Request.Body)
 		// c.Bind(obj)
-		respData := param()
-		c.Render(http.StatusOK, cryptoJSON{respData})
+		resp.Code = 0x000000
+		resp.Message = "成功"
+		param(&resp)
+		// resp.Data = respData
+		c.Render(http.StatusOK, cryptoJSON{resp})
 	}
 }

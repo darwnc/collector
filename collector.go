@@ -87,10 +87,11 @@ func main() {
 	engine.GET("/exercises/watch/", exercises.BinWatch)
 	engine.GET("/exercises/removeDigits/", exercises.RemoveDigits)
 	var tr exter.TestRequest
-	engine.GET("/test_crypto", exter.Wrap(&tr, func() interface{} {
-		fmt.Println("service=", tr.Header.Service)
+	engine.GET("/test_crypto", exter.Wrap(&tr, func(resp *exter.Resp) {
+		resp.Service = tr.Header.Service
 		fmt.Printf("%#v", tr)
-		return tr
+		resp.Data = tr
+		// return tr
 	}))
 
 	engine.Run(":8080")
