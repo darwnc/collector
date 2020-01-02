@@ -1,20 +1,24 @@
 package main
 
 import (
+	"fmt"
+	"hash/crc32"
+	"strconv"
 	"testing"
 )
 
 func TestSocket(t *testing.T) {
-	// crc := crc32.ChecksumIEEE([]byte("test"))
-	// fmt.Println("crc32", crc)
-	// fmt.Println(strconv.FormatUint(uint64(crc), 2))
+	crc := crc32.ChecksumIEEE([]byte("test"))
+	// fmt.Println("crc32", crc/64, crc>>8)
+	fmt.Println(strconv.FormatUint(uint64(crc), 2))
 	// //验证crc 分割成4个8byte数组验证
-	// prix := a(crc)
-	// bytes := [...]byte{prix(), prix(), prix(), prix()}
-	// fmt.Println("-->", strconv.FormatUint(uint64(bytes[0]), 2))
-	// fmt.Println("-->", strconv.FormatUint(uint64(bytes[1]), 2))
-	// fmt.Println("-->", strconv.FormatUint(uint64(bytes[2]), 2))
-	// fmt.Println("-->", strconv.FormatUint(uint64(bytes[3]), 2))
+	prix := a(crc)
+	bytes := [...]byte{prix(), prix(), prix(), prix()}
+	fmt.Println(bytes)
+	fmt.Println("-->", strconv.FormatUint(uint64(bytes[0]), 2))
+	fmt.Println("-->", strconv.FormatUint(uint64(bytes[1]), 2))
+	fmt.Println("-->", strconv.FormatUint(uint64(bytes[2]), 2))
+	fmt.Println("-->", strconv.FormatUint(uint64(bytes[3]), 2))
 	// var result uint32
 	// for i := 0; i < 4; i++ {
 	// 	result += uint32(bytes[i]) << (i * 8)

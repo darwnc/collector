@@ -19,10 +19,12 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var htmlFiles = []string{"./static/html/index.html", "./static/html/temp/header.html",
-	"./static/html/test.html", "./static/html/temp/footer.html"}
+var htmlFiles = []string{"./static/html/temp/header.html", "./static/html/temp/footer.html",
+	"./static/html/404.html", "./static/html/test.html", "./static/html/index.html",
+}
 
 func main() {
+	//TODO 当前文件文件系统
 	//需要注册，否则无法获取到该结构体
 	gob.Register(verify.User{})
 	// dir, _ := os.Getwd()
@@ -32,13 +34,15 @@ func main() {
 	store := cookie.NewStore([]byte("gcookie"))
 	engine.Use(sessions.Sessions("gsession", store))
 	engine.StaticFS("/resources", http.Dir("./static/resources"))
-
+	engine.LoadHTMLFiles(htmlFiles...)
 	// engine.HTMLRender.Instance(string, interface{})
 	// testTemp := template.Must(template.ParseFiles("./static/html/test.html", "./static/html/temp/header.html", "./static/html/temp/footer.html"))
 	// engine.SetHTMLTemplate(testTemp)
 	// engine.LoadHTMLGlob("static/html/*/*")
 	// engine.StaticFile("/favicon.ico", "/Users/Jack/Documents/golearn/collector/favicon.ico")
-	engine.LoadHTMLFiles(htmlFiles...)
+	engine.NoRoute(func(context *gin.Context) {
+		context.HTML(200, "404.html", struct{ Title string }{"未找到"})
+	})
 	engine.Use(gin.Logger(), gin.Recovery())
 	engine.GET("/", func(c *gin.Context) {
 		// c.JSON(200, gin.H{"pong": "hello"})
