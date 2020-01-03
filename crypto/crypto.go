@@ -39,6 +39,9 @@ func AESDecrypt(data, key []byte) ([]byte, error) {
 		return nil, err
 	}
 	blockMode := cipher.NewCBCDecrypter(block, IV)
+	if data == nil || len(data) == 0 {
+		return nil, errors.New("AESDecrypt data is nil or len=0")
+	}
 	buff := make([]byte, len(data))
 	blockMode.CryptBlocks(buff, data)
 	return pkcs5UnPadding(buff), nil

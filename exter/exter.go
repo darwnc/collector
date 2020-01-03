@@ -130,3 +130,13 @@ func Wrap(data interface{}, param Process) gin.HandlerFunc {
 		c.Render(http.StatusOK, cryptoJSON{resp})
 	}
 }
+
+//WrapHTML 包裹通用的部分 包含title等类似的部分
+func WrapHTML(title, page string, data interface{}) gin.HandlerFunc {
+	return func(context *gin.Context) {
+		context.HTML(http.StatusOK, page, struct {
+			Title string
+			Data  interface{}
+		}{title, data})
+	}
+}

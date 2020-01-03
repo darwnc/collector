@@ -41,21 +41,22 @@ func main() {
 	// engine.LoadHTMLGlob("static/html/*/*")
 	// engine.StaticFile("/favicon.ico", "/Users/Jack/Documents/golearn/collector/favicon.ico")
 	engine.NoRoute(func(context *gin.Context) {
-		context.HTML(200, "404.html", struct{ Title string }{"未找到"})
+		context.HTML(404, "404.html", struct{ Title string }{"未找到"})
 	})
 	engine.Use(gin.Logger(), gin.Recovery())
-	engine.GET("/", func(c *gin.Context) {
-		// c.JSON(200, gin.H{"pong": "hello"})
-		// indexTemp := template.Must(template.ParseFiles())
-		// engine.SetHTMLTemplate(indexTemp)
-		//define "home/index.html" 否则默认index.html即文件名加后缀
-		c.HTML(http.StatusOK, "home/index.html", struct{ Title string }{"首页"})
-	})
-	engine.GET("/test", func(c *gin.Context) {
-		// testTemp := template.Must(template.ParseFiles("./static/html/test.html", "./static/html/temp/header.html", "./static/html/temp/footer.html"))
-		// engine.SetHTMLTemplate(testTemp)
-		c.HTML(200, "test.html", struct{ Title string }{"测试"})
-	})
+	// engine.GET("/", func(c *gin.Context) {
+	// 	// c.JSON(200, gin.H{"pong": "hello"})
+	// 	c.HTML(http.StatusOK, "home/index.html", struct{ Title string }{"首页"})
+	// })
+	//define "home/index.html" 否则默认index.html即文件名加后缀
+	engine.GET("/", exter.WrapHTML("首页", "home/index.html", nil))
+	data := [...]string{"a", "b", "c", "d"}
+	engine.GET("/test", exter.WrapHTML("测试", "test.html", data))
+	// engine.GET("/test", func(c *gin.Context) {
+	// 	// testTemp := template.Must(template.ParseFiles("./static/html/test.html", "./static/html/temp/header.html", "./static/html/temp/footer.html"))
+	// 	// engine.SetHTMLTemplate(testTemp)
+	// 	c.HTML(200, "test.html", struct{ Title string }{"测试"})
+	// })
 	//需要验证的模块以/user为开头
 	verify.RegistUserGroup("/user", engine)
 	verify.UserInfo("/info")

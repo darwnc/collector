@@ -2,6 +2,9 @@
 {{template "header" .}}
 <body>
     <li>测试</li>
+    {{range .Data}}
+    <h2>值是{{.}}</h2>
+    {{end}}
 </body>
 {{template "footer"}}
 {{end}}
