@@ -4,6 +4,8 @@ import (
 	"encoding/gob"
 	"fmt"
 	"net/http"
+	"os"
+	"path/filepath"
 
 	"github.com/darwnc/collector/exercises"
 	"github.com/darwnc/collector/exter"
@@ -19,14 +21,37 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var htmlFiles = []string{"./static/html/temp/header.html", "./static/html/temp/footer.html",
-	"./static/html/404.html", "./static/html/test.html", "./static/html/index.html",
+var htmlFiles []string
+
+// = []string{"./static/html/temp/header.html", "./static/html/temp/footer.html",
+// 	"./static/html/404.html", "./static/html/test.html", "./static/html/index.html",
+// }
+
+func init() {
+	htmlFiles = make([]string, 0, 20)
+	rootDir, _ := os.Getwd()
+	sep := string(os.PathSeparator)
+	filepath.Walk("./static/html", func(path string, info os.FileInfo, err error) error {
+		if err == nil {
+			if !info.IsDir() {
+				htmlFiles = append(htmlFiles, rootDir+sep+path)
+			}
+		}
+		return err
+	})
 }
 
 func main() {
 	//TODO 当前文件文件系统
 	//需要注册，否则无法获取到该结构体
 	gob.Register(verify.User{})
+	//write objects
+	// buf := bytes.Buffer{}
+	// enc := gob.NewEncoder(&buf)
+	// enc.Encode(htmlFiles)
+	// file, _ := os.Create("a.obj")
+	// file.Write(buf.Bytes())
+	// file.Close()
 	// dir, _ := os.Getwd()
 	// fmt.Println("currentdir=", dir)
 	gin.SetMode(gin.DebugMode)
